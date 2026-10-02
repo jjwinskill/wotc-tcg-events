@@ -1,0 +1,61 @@
+// CHECK constraints live in hand-written SQL in the migrations; Prisma doesn't model them.
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model GameTemplate {
+  id                     String       @id
+  name                   String
+  defaultCapacity        Int
+  maxCapacity            Int
+  minPlayers             Int
+  defaultDurationMinutes Int
+  formats                GameFormat[]
+}
+
+model GameFormat {
+  templateId      String
+  id              String
+  name            String
+  durationMinutes Int?
+  minPlayers      Int?
+  capacityStep    Int?
+  template        GameTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  events          Event[]
+
+  @@id([templateId, id])
+}
+
+model Event {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  templateId      String
+  formatId        String
+  startsAt        DateTime       @db.Timestamptz(3)
+  durationMinutes Int
+  capacity        Int
+  minPlayers      Int
+  registeredCount Int            @default(0)
+  location        String
+  createdAt       DateTime       @default(now()) @db.Timestamptz(3)
+  format          GameFormat     @relation(fields: [templateId, formatId], references: [templateId, id])
+  registrations   Registration[]
+
+  @@index([startsAt])
+}
+
+model Registration {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId   String   @db.Uuid
+  name      String
+  nameKey   String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, nameKey])
+}

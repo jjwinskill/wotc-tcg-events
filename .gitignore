@@ -10,3 +10,4 @@ coverage/
 *.log
 .DS_Store
 docs/SPEC.md
+apps/api/src/generated/
