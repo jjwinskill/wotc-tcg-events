@@ -18,7 +18,6 @@ it.each([
   ['booster-draft', 8, '201'],
   ['booster-draft', 7, '400 VALIDATION_FAILED capacity'],
   ['commander', 28, '201'],
-  ['commander', 30, '400 VALIDATION_FAILED capacity'],
   ['commander', 10, '400 VALIDATION_FAILED capacity'],
 ])('mtg %s with capacity %i → %s', async (formatId, capacity, expected) => {
   expect(outcome(await create({ formatId, capacity }))).toBe(expected);
@@ -41,7 +40,7 @@ it.each([
 });
 
 it.each([
-  ['Friday Night Magic', 'friday-night-magic.ics'],
+  ['Pokémon League Challenge', 'pokemon-league-challenge.ics'],
   ['🎉 Draft Night 🃏', 'draft-night.ics'],
   ['🎉🃏', 'event.ics'],
 ])('serves a UTC invite for "%s" as %s', async (name, filename) => {

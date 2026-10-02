@@ -14,7 +14,8 @@ export const eventsBetween = (db: Client, from: Date, to: Date) =>
 
 export const findEvent = (db: Client, id: string) => db.event.findUnique({ where: { id }, include: withNames });
 
-// Sized so 50 concurrent registrations queue on the pool (max 20) and the row lock without timing out.
+// Concurrent registrations for one event queue for a pool connection and then for the event's row lock;
+// maxWait/timeout bound that wait instead of failing fast.
 export const inRegistrationTransaction = <T>(db: Db, fn: (tx: Client) => Promise<T>) =>
   db.$transaction(fn, { isolationLevel: 'ReadCommitted', maxWait: 20_000, timeout: 20_000 });
 

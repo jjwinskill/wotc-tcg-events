@@ -15,12 +15,11 @@ export const toSummary = (e: EventRow, now: Date): EventSummary => ({
   registrationStatus: e.startsAt <= now ? 'closed' : e.registeredCount >= e.capacity ? 'full' : 'open',
 });
 
-export const toDetail = (e: EventRow, now: Date, webOrigin: string): EventDetail => ({
+export const toDetail = (e: EventRow, now: Date): Omit<EventDetail, 'registrationUrl'> => ({
   ...toSummary(e, now),
   templateId: e.templateId,
   formatId: e.formatId,
   location: e.location,
   minPlayers: e.minPlayers,
   durationMinutes: e.durationMinutes,
-  registrationUrl: `${webOrigin}/events/${e.id}/register`,
 });

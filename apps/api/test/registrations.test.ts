@@ -25,7 +25,7 @@ it('admits exactly 30 of 50 concurrent distinct names to a 30-seat event, with z
 it('admits one of 10 concurrent case and space variants of a name, without leaking an increment', async () => {
   const event = await insertEvent();
   const variants = ['Ada Lovelace', 'ada lovelace', 'ADA LOVELACE', '  Ada   Lovelace ', 'Ada\tLovelace',
-    'Ａｄａ Ｌｏｖｅｌａｃｅ', 'aDa LoVeLaCe', 'Ada Lovelace', 'ADA  lovelace', 'ada LOVELACE'];
+    'Ａｄａ Ｌｏｖｅｌａｃｅ', 'aDa LoVeLaCe', 'Ada Lovelace', 'ADA  lovelace', 'Ada Lovelace​'];
   const responses = await Promise.all(variants.map((name) => register(event.id, name)));
   expect(tally(responses)).toEqual({ '201': 1, '409 ALREADY_REGISTERED': 9 });
   expect(await seats(event.id)).toEqual({ registeredCount: 1, rows: 1 });

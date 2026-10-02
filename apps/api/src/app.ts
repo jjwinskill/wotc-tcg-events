@@ -3,7 +3,7 @@ import type { Db } from './db.ts';
 import { errorHandler, notFound } from './errors.ts';
 import { createEventController } from './events/controller.ts';
 import { createEventService } from './events/service.ts';
-import { listTemplates } from './templates/store.ts';
+import { createTemplateController } from './templates/controller.ts';
 
 export type Clock = () => Date;
 
@@ -20,14 +20,13 @@ export const createApp = ({ db, clock, publicWebUrl }: Deps) => {
   app.use(express.json({ limit: '10kb' }));
 
   const events = createEventController(createEventService({ db, clock }), publicWebUrl);
+  const templates = createTemplateController(db);
   const api = express.Router();
   api.get('/health', async (_req, res) => {
     await db.$queryRaw`SELECT 1`;
     res.json({ ok: true });
   });
-  api.get('/templates', async (_req, res) => {
-    res.json(await listTemplates(db));
-  });
+  api.get('/templates', templates.list);
   api.get('/events', events.list);
   api.post('/events', events.create);
   api.get('/events/:id', events.get);

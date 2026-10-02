@@ -19,9 +19,11 @@ const notFound = () => new AppError(404, 'NOT_FOUND', 'Event not found');
 const alreadyRegistered = () =>
   new AppError(409, 'ALREADY_REGISTERED', 'This name is already registered for this event');
 
-const nameKey = (name: string) => name.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+const nameKey = (name: string) =>
+  name.normalize('NFKC').replace(/\p{Cf}/gu, '').trim().replace(/\s+/g, ' ').toLowerCase();
 
-const slug = (name: string) => name.toLowerCase().match(/[a-z0-9]+/g)?.join('-') ?? 'event';
+const slug = (name: string) =>
+  name.normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase().match(/[a-z0-9]+/g)?.join('-') ?? 'event';
 
 export type EventService = ReturnType<typeof createEventService>;
 
@@ -33,7 +35,7 @@ export const createEventService = ({ db, clock }: { db: Db; clock: Clock }) => {
   };
 
   return {
-    async create(input: CreateEventInput, webOrigin: string) {
+    async create(input: CreateEventInput) {
       const now = clock();
       if (new Date(input.startsAt) <= now) throw fieldError('startsAt', 'Pick a start time in the future');
       const template = await findTemplate(db, input.templateId);
@@ -55,7 +57,7 @@ export const createEventService = ({ db, clock }: { db: Db; clock: Clock }) => {
         capacity,
         location: input.location,
       });
-      return toDetail(row, now, webOrigin);
+      return toDetail(row, now);
     },
 
     async list(range: EventRange) {
@@ -64,7 +66,7 @@ export const createEventService = ({ db, clock }: { db: Db; clock: Clock }) => {
       return rows.map((e) => toSummary(e, now));
     },
 
-    get: async (id: string, webOrigin: string) => toDetail(await getRow(id), clock(), webOrigin),
+    get: async (id: string) => toDetail(await getRow(id), clock()),
 
     async invite(id: string) {
       const e = await getRow(id);

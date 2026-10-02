@@ -31,7 +31,7 @@ if ((await db.event.count()) === 0) {
     { days: 13, name: 'Expanded Cup', templateId: 'pokemon', formatId: 'expanded' },
   ];
   for (const { days, players = [], ...input } of demo) {
-    const event = await events.create({ ...input, startsAt: at(days), location: DEFAULT_LOCATION }, '');
+    const event = await events.create({ ...input, startsAt: at(days), location: DEFAULT_LOCATION });
     for (const name of players) await events.register(event.id, { name });
   }
 }
