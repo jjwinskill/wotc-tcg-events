@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 export const DEFAULT_LOCATION = 'Main Street Games, 123 Main St';
+export const EVENT_NAME_MAX = 100;
+export const LOCATION_MAX = 200;
+export const PLAYER_NAME_MAX = 60;
 
 export const ErrorCode = z.enum([
   'VALIDATION_FAILED',
@@ -70,7 +73,7 @@ export const isValidCapacity = (rules: FormatRules, capacity: number) =>
   capacity >= rules.minCapacity && capacity <= rules.maxCapacity && capacity % rules.step === 0;
 
 export const CreateEventInput = body({
-  name: z.string({ error: 'Enter an event name' }).trim().min(1, 'Enter an event name').max(100, 'Use 100 characters or fewer'),
+  name: z.string({ error: 'Enter an event name' }).trim().min(1, 'Enter an event name').max(EVENT_NAME_MAX, `Use ${EVENT_NAME_MAX} characters or fewer`),
   templateId: z.string({ error: 'Choose a game' }).min(1, 'Choose a game'),
   formatId: z.string({ error: 'Choose a format' }).min(1, 'Choose a format'),
   startsAt: instant.refine((s) => new Date(s).getTime() % (15 * 60_000) === 0, 'Pick a start time on a 15-minute step'),
@@ -80,7 +83,7 @@ export const CreateEventInput = body({
     .min(1, 'Capacity must be at least 1')
     .max(30, 'Capacity can be at most 30')
     .optional(),
-  location: z.string({ error: 'Enter a location' }).trim().min(1, 'Enter a location').max(200, 'Use 200 characters or fewer'),
+  location: z.string({ error: 'Enter a location' }).trim().min(1, 'Enter a location').max(LOCATION_MAX, `Use ${LOCATION_MAX} characters or fewer`),
 });
 export type CreateEventInput = z.infer<typeof CreateEventInput>;
 
@@ -116,7 +119,7 @@ export const EventDetail = EventSummary.extend({
 export type EventDetail = z.infer<typeof EventDetail>;
 
 export const RegisterInput = body({
-  name: z.string({ error: 'Enter your name' }).trim().min(1, 'Enter your name').max(60, 'Use 60 characters or fewer'),
+  name: z.string({ error: 'Enter your name' }).trim().min(1, 'Enter your name').max(PLAYER_NAME_MAX, `Use ${PLAYER_NAME_MAX} characters or fewer`),
 });
 export type RegisterInput = z.infer<typeof RegisterInput>;
 
