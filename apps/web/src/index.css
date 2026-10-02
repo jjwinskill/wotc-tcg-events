@@ -8,3 +8,15 @@ body {
   background: #fff;
   color: #111827;
 }
+
+@layer components {
+  .btn {
+    @apply inline-block rounded bg-blue-700 px-4 py-2 font-medium text-white disabled:opacity-60;
+  }
+  .input {
+    @apply block w-full rounded border border-gray-500 bg-white px-2 py-1.5 aria-invalid:border-red-700;
+  }
+  .link {
+    @apply text-blue-700 underline;
+  }
+}
