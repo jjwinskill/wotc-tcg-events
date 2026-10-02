@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router';
 import { ApiError, request } from '../api';
-import { EventFacts, Field, IcsLink, Title, WithEvent, fieldProps, focusOnMount } from '../components';
+import { EventFacts, Field, IcsLink, Title, WithEvent, fieldProps, focusOnMount, unavailable } from '../components';
 import { eventQueries } from '../queries';
 
 export function RegisterPage() {
@@ -46,12 +46,17 @@ function RegisterView({ event }: { event: EventDetail }) {
       ) : status !== 'open' ? (
         <section className="space-y-2">
           <h2 tabIndex={-1} ref={mutation.isError ? focusOnMount : undefined} className="text-xl font-semibold">
-            {status === 'full' ? 'This event is full' : 'Registration closed'}
+            {unavailable(status, event.capacity)[0]}
           </h2>
-          <p>{status === 'full' ? 'Every seat is taken.' : 'Registration closed when the event started.'}</p>
-          <Link to={`/events/${event.id}`} className="link">
-            Back to the event
-          </Link>
+          <p>{unavailable(status, event.capacity)[1]}</p>
+          <p className="flex flex-wrap gap-4">
+            <Link to={`/events/${event.id}`} className="link">
+              Back to the event
+            </Link>
+            <Link to="/" className="link">
+              Back to the calendar
+            </Link>
+          </p>
         </section>
       ) : (
         <form noValidate onSubmit={submit} className="max-w-sm space-y-4">

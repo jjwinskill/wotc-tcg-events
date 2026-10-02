@@ -1,7 +1,7 @@
 import type { EventDetail } from '@app/shared';
 import { QRCodeSVG } from 'qrcode.react';
 import { Link } from 'react-router';
-import { EventFacts, IcsLink, Title, WithEvent } from '../components';
+import { EventFacts, IcsLink, Title, WithEvent, unavailable } from '../components';
 
 export function EventPage() {
   return <WithEvent>{(event) => <EventView event={event} />}</WithEvent>;
@@ -38,7 +38,10 @@ function EventView({ event }: { event: EventDetail }) {
           )}
         </section>
       ) : (
-        <p className="text-lg font-semibold">{event.registrationStatus === 'full' ? 'This event is full' : 'Registration closed'}</p>
+        <section className="space-y-1">
+          <h2 className="text-xl font-semibold">{unavailable(event.registrationStatus, event.capacity)[0]}</h2>
+          <p>{unavailable(event.registrationStatus, event.capacity)[1]}</p>
+        </section>
       )}
     </>
   );
