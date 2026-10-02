@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.local
+.run/
+.claude/worktrees/
+.claude/settings.local.json
+*.log
+.DS_Store
+docs/SPEC.md
