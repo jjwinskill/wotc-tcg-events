@@ -11,7 +11,7 @@ it.each<[string, () => Test, string]>([
   ['a latin1 charset', () => http.post('/api/events').set('Content-Type', 'application/json; charset=latin1').send('{}'), '415 BAD_REQUEST'],
   ['an oversized body', () => http.post('/api/events').send({ name: 'x'.repeat(11_000) }), '413 BAD_REQUEST'],
   ['an unknown route', () => http.get('/api/nope'), '404 NOT_FOUND'],
-  ['an invisible-only player name', () => http.post(`/api/events/${unknownIds[1]}/registrations`).send({ name: '​' }), '400 VALIDATION_FAILED name'],
+  ['an invisible-only player name', () => http.post(`/api/events/${unknownIds[1]}/registrations`).send({ name: '\u200B' }), '400 VALIDATION_FAILED name'],
   ['a NUL byte in a player name', () => http.post(`/api/events/${unknownIds[1]}/registrations`).send({ name: 'a\u0000b' }), '400 VALIDATION_FAILED name'],
   ...unknownIds.flatMap((id): [string, () => Test, string][] => [
     [`GET /events/${id}`, () => http.get(`/api/events/${id}`), '404 NOT_FOUND'],

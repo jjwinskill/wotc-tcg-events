@@ -17,6 +17,7 @@ it('picking a game or format sets its formats, default capacity and capacity bou
   await screen.findByRole('combobox', { name: 'Format' });
   expect(capacityRules()).toEqual({ value: '16', min: '4', max: '30', step: '1' });
 
+  fireEvent.change(screen.getByRole('spinbutton', { name: 'Capacity' }), { target: { value: '20' } });
   fireEvent.change(screen.getByRole('combobox', { name: 'Format' }), { target: { value: 'commander' } });
   expect(capacityRules()).toEqual({ value: '12', min: '4', max: '28', step: '4' });
 

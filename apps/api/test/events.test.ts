@@ -35,9 +35,14 @@ it.each([
   ['a startsAt off the 15-minute grid', { startsAt: '2030-01-03T18:05:00Z' }, 'startsAt'],
   ['a blank name', { name: '   ' }, 'name'],
   ['a NUL byte in the name', { name: 'a\u0000b' }, 'name'],
+  ['an invisible-only name', { name: '\u200B' }, 'name'],
   ['a startsAt with no offset', { startsAt: '2030-01-03T18:00:00' }, 'startsAt'],
 ])('rejects %s on that field', async (_, over, field) => {
   expect(outcome(await create(over))).toBe(`400 VALIDATION_FAILED ${field}`);
+});
+
+it('asks for a date and start time, alone, when startsAt is empty', async () => {
+  expect((await create({ startsAt: '' })).body.error.details.fieldErrors.startsAt).toEqual(['Pick a date and start time']);
 });
 
 it.each([

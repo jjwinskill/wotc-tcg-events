@@ -31,13 +31,14 @@ export const ErrorEnvelope = z.object({
 export type ErrorEnvelope = z.infer<typeof ErrorEnvelope>;
 
 const instant = z.iso.datetime({ offset: true, error: 'Use an ISO date-time with a time zone offset', abort: true });
-// Postgres rejects NUL, and no single-line field needs control characters.
+// Postgres rejects NUL, so control characters other than whitespace are refused; invisible-only text counts as missing.
 const text = (missing: string, max: number) =>
   z
     .string({ error: missing })
     .trim()
     .min(1, missing)
     .max(max, `Use ${max} characters or fewer`)
+    .refine((s) => s.replace(/\p{Cf}/gu, '').trim().length > 0, missing)
     .refine((s) => !/\p{Cc}/u.test(s.replace(/\s/g, ' ')), 'Remove control characters');
 const body = <T extends z.ZodRawShape>(shape: T) => z.object(shape, { error: 'Send a JSON object body' });
 

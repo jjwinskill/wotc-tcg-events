@@ -87,9 +87,8 @@ export const createEventService = ({ db, clock }: { db: Db; clock: Clock }) => {
 
     /** Precedence when no seat is claimed: 404 → ALREADY_REGISTERED → REGISTRATION_CLOSED → EVENT_FULL. */
     async register(eventId: string, { name }: RegisterInput): Promise<Registration> {
-      const key = nameKey(name);
-      if (!key) throw fieldError('name', 'Enter your name');
       if (!UUID.test(eventId)) throw notFound();
+      const key = nameKey(name);
       const now = clock();
       return store.inRegistrationTransaction(db, async (tx) => {
         if (await store.claimSeat(tx, eventId, now)) {
