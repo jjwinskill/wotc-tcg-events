@@ -10,7 +10,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "typecheck": "tsc -p packages/shared && tsc -p apps/api",
+    "typecheck": "tsc -p packages/shared && tsc -p apps/api && tsc -p apps/web",
     "lint": "eslint .",
     "test": "vitest run",
     "verify": "npm run typecheck && npm run lint && npm run test",
