@@ -10,10 +10,40 @@ services:
     volumes:
       - db-data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U app -d app"]
       interval: 2s
       timeout: 3s
       retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    init: true
+    restart: on-failure
+    environment:
+      DATABASE_URL: postgresql://app:app@db:5432/app
+      PORT: 3000
+      PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/api/health"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
   db-data:

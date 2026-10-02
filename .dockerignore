@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/build
+**/coverage
+**/test
+.git
+**/.env*
+!.env.example
+.run
+.claude
+apps/api/src/generated
+docs
