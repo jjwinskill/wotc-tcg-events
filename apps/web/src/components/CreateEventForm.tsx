@@ -2,9 +2,8 @@ import { DEFAULT_LOCATION, EVENT_NAME_MAX, EventDetail, LOCATION_MAX, type Creat
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { request } from '../api';
+import { ApiError, request } from '../api';
 import { eventQueries } from '../queries';
-import { fieldErrorsOf } from '../utils/forms';
 import { chosenSlot, firstOpenDate, slotLabel, slotsOn, toIsoUtc } from '../utils/timeSlots';
 import { Field, fieldProps } from './Field';
 import { GameFields } from './GameFields';
@@ -29,7 +28,7 @@ export function CreateEventForm({ templates }: { templates: GameTemplate[] }) {
   const slots = slotsOn(date, now);
   const time = chosenSlot(slots, pickedTime);
   const template = templates.find((t) => t.id === templateId);
-  const errors = fieldErrorsOf(mutation.error);
+  const errors = mutation.error instanceof ApiError ? mutation.error.fieldErrors : {};
   const formError = mutation.isError && Object.keys(errors).length === 0 ? mutation.error.message : undefined;
 
   if (!template) return <p>No games are set up yet.</p>;
@@ -64,15 +63,16 @@ export function CreateEventForm({ templates }: { templates: GameTemplate[] }) {
       <GameFields key={template.id} template={template} errors={errors} />
       <fieldset>
         <legend className="mb-1 font-medium">Start</legend>
-        <div className="grid grid-cols-2 gap-3">
+        {/* min-w-0 lets both controls shrink below their intrinsic width (Safari's date input), so they share one row at 375px. */}
+        <div className="grid grid-cols-2 gap-3 *:min-w-0">
           <div className="space-y-1">
             <label htmlFor="date" className="block font-medium">
               Date
             </label>
-            <input type="date" id="date" className="input" required min={firstDate} value={date} onChange={(e) => setDate(e.target.value)} />
+            <input type="date" id="date" className="input min-w-0" required min={firstDate} value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <Field label="Start time" name="startsAt" errors={errors}>
-            <select {...fieldProps(errors, 'startsAt')} required value={time ?? ''} onChange={(e) => setTime(e.target.value)}>
+            <select {...fieldProps(errors, 'startsAt')} className="input min-w-0" required value={time ?? ''} onChange={(e) => setTime(e.target.value)}>
               {slots.length === 0 && <option value="">No start times left on this date</option>}
               {slots.map((t) => (
                 <option key={t} value={t}>

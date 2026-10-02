@@ -22,6 +22,16 @@ it.each(['http://localhost:8080', 'http://127.0.0.1:5173'])('shows the phone not
   expect(await screen.findByText(notice)).toBeTruthy();
 });
 
+it.each([
+  ['full', 'This event is full', 'Full · 16/16'],
+  ['closed', 'Registration closed', '16/16 registered'],
+] as const)('a %s event shows its state instead of the QR code', async (registrationStatus, heading, players) => {
+  renderAt(path, () => [200, event({ registrationStatus, registeredCount: 16 })]);
+  expect(await screen.findByRole('heading', { level: 2, name: heading })).toBeTruthy();
+  expect(screen.getByText(players)).toBeTruthy();
+  expect(screen.queryByRole('img', { name: 'QR code for the registration page' })).toBeNull();
+});
+
 it('shows a not-found state for an unknown event', async () => {
   renderAt(path, () => [404, envelope('NOT_FOUND', 'Event not found')]);
   expect(await screen.findByRole('heading', { level: 1, name: 'Event not found' })).toBeTruthy();
