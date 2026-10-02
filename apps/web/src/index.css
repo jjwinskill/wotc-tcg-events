@@ -20,3 +20,19 @@ body {
     @apply text-blue-700 underline;
   }
 }
+
+/* FullCalendar theming through its own classes: wrap the toolbar on phones, keep chips to one truncated line. */
+.fc .fc-toolbar {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+}
+.fc-daygrid-event {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.fc-daygrid-event .fc-event-title {
+  text-overflow: ellipsis;
+}
