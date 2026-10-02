@@ -13,6 +13,7 @@ it.each<[string, () => Test, string]>([
   ['an unknown route', () => http.get('/api/nope'), '404 NOT_FOUND'],
   ...unknownIds.flatMap((id): [string, () => Test, string][] => [
     [`GET /events/${id}`, () => http.get(`/api/events/${id}`), '404 NOT_FOUND'],
+    [`register on ${id}`, () => http.post(`/api/events/${id}/registrations`).send({ name: 'Ann' }), '404 NOT_FOUND'],
     [`invite.ics for ${id}`, () => http.get(`/api/events/${id}/invite.ics`), '404 NOT_FOUND'],
   ]),
 ])('%s → %s in the error envelope', async (_, send, expected) => {

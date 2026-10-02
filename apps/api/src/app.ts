@@ -32,6 +32,7 @@ export const createApp = ({ db, clock, publicWebUrl }: Deps) => {
   api.post('/events', events.create);
   api.get('/events/:id', events.get);
   api.get('/events/:id/invite.ics', events.invite);
+  api.post('/events/:id/registrations', events.register);
   app.use('/api', api);
 
   app.use(notFound);

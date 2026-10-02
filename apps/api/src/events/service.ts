@@ -1,5 +1,12 @@
 import { createEvent as createIcs } from 'ics';
-import { formatRules, isValidCapacity, type CreateEventInput, type EventRange } from '@app/shared';
+import {
+  formatRules,
+  isValidCapacity,
+  type CreateEventInput,
+  type EventRange,
+  type RegisterInput,
+  type Registration,
+} from '@app/shared';
 import type { Clock } from '../app.ts';
 import type { Db } from '../db.ts';
 import { AppError, fieldError } from '../errors.ts';
@@ -9,6 +16,10 @@ import * as store from './store.ts';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const notFound = () => new AppError(404, 'NOT_FOUND', 'Event not found');
+const alreadyRegistered = () =>
+  new AppError(409, 'ALREADY_REGISTERED', 'This name is already registered for this event');
+
+const nameKey = (name: string) => name.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
 
 const slug = (name: string) => name.toLowerCase().match(/[a-z0-9]+/g)?.join('-') ?? 'event';
 
@@ -70,6 +81,27 @@ export const createEventService = ({ db, clock }: { db: Db; clock: Clock }) => {
       });
       if (!value) throw error ?? new Error('ics returned no calendar');
       return { filename: `${slug(e.name)}.ics`, ics: value };
+    },
+
+    /** Precedence when no seat is claimed: 404 → ALREADY_REGISTERED → REGISTRATION_CLOSED → EVENT_FULL. */
+    async register(eventId: string, { name }: RegisterInput): Promise<Registration> {
+      if (!UUID.test(eventId)) throw notFound();
+      const key = nameKey(name);
+      const now = clock();
+      return store.inRegistrationTransaction(db, async (tx) => {
+        if (await store.claimSeat(tx, eventId, now)) {
+          try {
+            return await store.insertRegistration(tx, eventId, name, key);
+          } catch (err) {
+            throw store.isUniqueViolation(err) ? alreadyRegistered() : err;
+          }
+        }
+        const facts = await store.seatFacts(tx, eventId, key);
+        if (!facts) throw notFound();
+        if (facts.registrations.length) throw alreadyRegistered();
+        if (facts.startsAt <= now) throw new AppError(409, 'REGISTRATION_CLOSED', 'Registration closed when the event started');
+        throw new AppError(409, 'EVENT_FULL', 'This event is full');
+      });
     },
   };
 };

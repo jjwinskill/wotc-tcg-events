@@ -1,4 +1,5 @@
-import type { Prisma } from '../generated/prisma/client.ts';
+import { Prisma } from '../generated/prisma/client.ts';
+import type { Db } from '../db.ts';
 
 type Client = Prisma.TransactionClient;
 
@@ -12,3 +13,28 @@ export const eventsBetween = (db: Client, from: Date, to: Date) =>
   db.event.findMany({ where: { startsAt: { gte: from, lt: to } }, orderBy: { startsAt: 'asc' }, include: withNames });
 
 export const findEvent = (db: Client, id: string) => db.event.findUnique({ where: { id }, include: withNames });
+
+// Sized so 50 concurrent registrations queue on the pool (max 20) and the row lock without timing out.
+export const inRegistrationTransaction = <T>(db: Db, fn: (tx: Client) => Promise<T>) =>
+  db.$transaction(fn, { isolationLevel: 'ReadCommitted', maxWait: 20_000, timeout: 20_000 });
+
+/** The guarded increment: under READ COMMITTED a blocked UPDATE re-checks its WHERE once the row lock is released. */
+export const claimSeat = async (tx: Client, eventId: string, now: Date) => {
+  const { count } = await tx.event.updateMany({
+    where: { id: eventId, startsAt: { gt: now }, registeredCount: { lt: tx.event.fields.capacity } },
+    data: { registeredCount: { increment: 1 } },
+  });
+  return count === 1;
+};
+
+export const insertRegistration = (tx: Client, eventId: string, name: string, nameKey: string) =>
+  tx.registration.create({ data: { eventId, name, nameKey }, select: { id: true, name: true } });
+
+export const seatFacts = (tx: Client, eventId: string, nameKey: string) =>
+  tx.event.findUnique({
+    where: { id: eventId },
+    select: { startsAt: true, registrations: { where: { nameKey }, select: { id: true } } },
+  });
+
+export const isUniqueViolation = (err: unknown) =>
+  err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002';

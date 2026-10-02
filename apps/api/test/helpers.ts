@@ -49,3 +49,6 @@ export const insertEvent = (data: Partial<Prisma.EventUncheckedCreateInput> = {}
 /** One comparable string per response: "201", "409 EVENT_FULL" or "400 VALIDATION_FAILED capacity". */
 export const outcome = (r: Response) =>
   [r.status, r.body.error?.code, ...Object.keys(r.body.error?.details?.fieldErrors ?? {})].filter(Boolean).join(' ');
+
+export const tally = (responses: Response[]) =>
+  responses.reduce<Record<string, number>>((t, r) => ({ ...t, [outcome(r)]: (t[outcome(r)] ?? 0) + 1 }), {});

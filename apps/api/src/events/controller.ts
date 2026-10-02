@@ -1,5 +1,5 @@
 import type { Request, RequestHandler } from 'express';
-import { CreateEventInput, EventRange } from '@app/shared';
+import { CreateEventInput, EventRange, RegisterInput } from '@app/shared';
 import type { EventService } from './service.ts';
 
 type Handler = RequestHandler<{ id: string }>;
@@ -20,6 +20,9 @@ export const createEventController = (events: EventService, publicWebUrl?: strin
     const { filename, ics } = await events.invite(req.params.id);
     res.attachment(filename).type('text/calendar; charset=utf-8').send(ics);
   };
+  const register: Handler = async (req, res) => {
+    res.status(201).json(await events.register(req.params.id, RegisterInput.parse(req.body ?? {})));
+  };
 
-  return { list, create, get, invite };
+  return { list, create, get, invite, register };
 };
