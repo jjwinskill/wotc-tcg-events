@@ -7,27 +7,33 @@ The lead's procedure is in [.claude/KICKOFF.md](.claude/KICKOFF.md).
 - **AI log:** [docs/AI-LOG.md](docs/AI-LOG.md). Append a row whenever AI output is rejected or corrected, saying who caught it.
 
 ## Stack, commands and layout
-The lead fills these three sections at G0 from ARCHITECTURE.md, before Phase 0.
+Set at G0 from ARCHITECTURE.md. Exact pins are in ARCHITECTURE.md → Dependency manifest.
 
 ### Stack
-_(set at G0)_
+npm workspaces · Node 24 · TypeScript 6.0.3 (strict) · **API:** Express 5.2.1, Prisma 7.10.0 with `@prisma/adapter-pg`, Postgres 18, `ics` · **Shared:** zod 4.6.5 contract · **Web:** React 19.3 + Vite 8, React Router 7.18.4 (data mode, no loaders; never `react-router-dom`), TanStack Query 5, FullCalendar 6, `qrcode.react`, Tailwind 4 · **Tests:** Vitest 5 projects, supertest, Testing Library + jsdom + axe-core · Docker Compose (db, api, web/nginx).
 
 ### Commands (root)
 | Command | Does |
 |---|---|
 | `npm ci` then `npm run db:generate` | Required first in any fresh checkout or worktree |
 | `npm run verify` | **typecheck && lint && test. It must pass before anything counts as done.** |
-| _(the rest set at G0)_ | |
+| `npm run typecheck` / `lint` / `test` | The three parts of `verify` |
+| `npm run db:migrate` | `prisma migrate dev` against `DATABASE_URL` (lead only; creates migrations) |
+| `npm run db:seed` | Upsert templates; insert demo events only if there are none |
+| `npm run dev` | API (tsx watch, :3000) and Vite (:5173, proxies `/api`). Run `db:seed` first. |
+| `npm run build` / `start` | Build the workspaces / start the built API (used by the images) |
+| `docker compose up -d db` | The database alone, on `127.0.0.1:${DB_PORT:-5433}` |
+| `docker compose up --build` | The full stack on http://localhost:8080 (lead only) |
 
 ### Layout and ownership
 Edit only the paths your role owns. If you need a change elsewhere, put it in your report.
 
 | Path | Owner |
 |---|---|
-| Root config, `package.json` files, lockfile, `tsconfig*`, `eslint.config.mjs`, the shared contract package | lead |
-| API app, including **all** API tests | backend-engineer |
-| Web app, including its tests | frontend-engineer |
-| Dockerfiles, compose, proxy config, `.dockerignore`, `.env.example` | infra-engineer |
+| Root config, `package.json` files, lockfile, `tsconfig*`, `eslint.config.mjs`, `vitest.config.ts`, `packages/shared/**` (the contract), `apps/api/prisma.config.ts`, `apps/api/prisma/schema.prisma` and `apps/api/prisma/migrations/**` | lead |
+| `apps/api/**` (everything else), including **all** API tests | backend-engineer |
+| `apps/web/**` (everything else), including its tests | frontend-engineer |
+| `apps/*/Dockerfile`, `docker-compose.yml`, `apps/web/nginx.conf`, `apps/api/docker-entrypoint.sh`, `.dockerignore`, `.env.example` (the lead seeds compose and `.env.example` in Phase 0) | infra-engineer |
 | `README.md` | tech-writer drafts the facts; **the human writes the design write-up and the AI note** |
 | `docs/DECISIONS.md`, `docs/AI-LOG.md` | everyone, append-only |
 
