@@ -37,12 +37,9 @@ There's no template admin UI, so adding a 4th game means adding one typed defini
 
 Cut or faked:
 
-- A public roster. Without auth, a list of names is public data. For the same reason, "already registered" lets anyone check whether a name is signed up; with auth, that check would only reveal your own registration.
-- A waitlist.
-- Per-store time zones. I assume the organizer's browser is in the store's zone, and store UTC.
-- A template admin UI.
-- A public tunnel for phones. Use the machine's LAN IP or `PUBLIC_WEB_URL` instead.
 - The seed events are demo data, and the seed isn't atomic: a crash midway leaves partial demo data.
+- The `.ics` file is checked by tests and by hand, but I didn't import it into Google Calendar or Outlook.
+- Scanning the QR code works only on the same network (the LAN IP or `PUBLIC_WEB_URL`); the app isn't publicly hosted.
 
 Next, in order:
 
