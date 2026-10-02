@@ -1,7 +1,11 @@
 import type { EventDetail } from '@app/shared';
 import { QRCodeSVG } from 'qrcode.react';
 import { Link } from 'react-router';
-import { EventFacts, IcsLink, Title, WithEvent, unavailable } from '../components';
+import { EventFacts } from '../components/EventFacts';
+import { IcsLink } from '../components/IcsLink';
+import { Title } from '../components/Title';
+import { WithEvent } from '../components/WithEvent';
+import { unavailable } from '../utils/registration';
 
 export function EventPage() {
   return <WithEvent>{(event) => <EventView event={event} />}</WithEvent>;

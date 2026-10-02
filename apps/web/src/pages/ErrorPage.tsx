@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Title } from '../components';
+import { Title } from '../components/Title';
 
 export function ErrorPage() {
   return (
