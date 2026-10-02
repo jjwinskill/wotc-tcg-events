@@ -1,5 +1,4 @@
-// Lint gate. `npm run verify` = typecheck && lint && test, and the hand-back hook blocks on red.
-// Copy to the repo root in Phase 0. Rules are the frameworks' own recommended sets; no style rules.
+// Rules are the frameworks' own recommended sets; no style rules.
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
