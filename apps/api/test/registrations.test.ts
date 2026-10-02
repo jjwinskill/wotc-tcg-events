@@ -48,6 +48,13 @@ it.each([
   expect(outcome(res)).toBe('409 REGISTRATION_CLOSED');
 });
 
+it('tells a returning player ALREADY_REGISTERED rather than REGISTRATION_CLOSED after the start', async () => {
+  const event = await insertEvent();
+  expect(outcome(await register(event.id, 'Ann'))).toBe('201');
+  lateNow = new Date(event.startsAt.getTime() + 60_000);
+  expect(outcome(await late.post(`/api/events/${event.id}/registrations`).send({ name: 'ann' }))).toBe('409 ALREADY_REGISTERED');
+});
+
 it('rejects registeredCount above capacity in the database even when written as raw SQL', async () => {
   const event = await insertEvent({ capacity: 2 });
   await expect(

@@ -31,7 +31,7 @@ export const ErrorEnvelope = z.object({
 export type ErrorEnvelope = z.infer<typeof ErrorEnvelope>;
 
 const instant = z.iso.datetime({ offset: true, error: 'Use an ISO date-time with a time zone offset', abort: true });
-// Postgres rejects NUL, so control characters other than whitespace are refused; invisible-only text counts as missing.
+// Control characters other than tab are refused (NUL breaks Postgres; CR/LF would break .ics lines); invisible-only text counts as missing.
 const text = (missing: string, max: number) =>
   z
     .string({ error: missing })
@@ -39,7 +39,7 @@ const text = (missing: string, max: number) =>
     .min(1, missing)
     .max(max, `Use ${max} characters or fewer`)
     .refine((s) => s.replace(/\p{Cf}/gu, '').trim().length > 0, missing)
-    .refine((s) => !/\p{Cc}/u.test(s.replace(/\s/g, ' ')), 'Remove control characters');
+    .refine((s) => !/\p{Cc}/u.test(s.replace(/\t/g, ' ')), 'Remove control characters');
 const body = <T extends z.ZodRawShape>(shape: T) => z.object(shape, { error: 'Send a JSON object body' });
 
 export const GameFormat = z.object({
@@ -107,7 +107,7 @@ export const EventRange = z
   .refine((r) => new Date(r.from) < new Date(r.to), { error: '"from" must be before "to"', path: ['to'] });
 export type EventRange = z.infer<typeof EventRange>;
 
-export const RegistrationStatus = z.enum(['open', 'full', 'closed']);
+const RegistrationStatus = z.enum(['open', 'full', 'closed']);
 
 export const EventSummary = z.object({
   id: z.uuid(),

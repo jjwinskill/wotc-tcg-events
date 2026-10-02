@@ -17,7 +17,7 @@ if ((await db.event.count()) === 0) {
     new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + days, 23)).toISOString();
   const demo = [
     { days: 1, name: 'Modern Showdown', templateId: 'mtg', formatId: 'modern' },
-    { days: 2, name: 'Commander Night', templateId: 'mtg', formatId: 'commander', capacity: 12 },
+    { days: 2, name: 'Commander Night', templateId: 'mtg', formatId: 'commander' },
     { days: 4, name: 'Pokémon League Challenge', templateId: 'pokemon', formatId: 'standard' },
     {
       days: 6,

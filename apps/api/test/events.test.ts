@@ -35,6 +35,7 @@ it.each([
   ['a startsAt off the 15-minute grid', { startsAt: '2030-01-03T18:05:00Z' }, 'startsAt'],
   ['a blank name', { name: '   ' }, 'name'],
   ['a NUL byte in the name', { name: 'a\u0000b' }, 'name'],
+  ['a line break in the name', { name: 'a\rb' }, 'name'],
   ['an invisible-only name', { name: '\u200B' }, 'name'],
   ['a startsAt with no offset', { startsAt: '2030-01-03T18:00:00' }, 'startsAt'],
 ])('rejects %s on that field', async (_, over, field) => {

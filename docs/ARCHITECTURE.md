@@ -17,10 +17,10 @@ Written at G0 with the human, 2026-10-02. The requirements are in `docs/SPEC.md`
 | AC-9 | **Registration closes at start.** At or after `startsAt`, the API returns 409 `REGISTRATION_CLOSED`, and the register and event pages show a closed state with no form. | Human (correctness) |
 | AC-10 | **Full state.** The register page shows "This event is full" **instead of** the form, and the event page shows "Full · n/n". Calendar chips say "Full" in text. A player who loses the race on submit sees the same full state. | Spec 5 ("clear message") |
 | AC-11 | **Not found and titles.** There's a 404 route for unknown paths, and an unknown or non-UUID event id gives 404 (never 500) on GET, register and `.ics`, with a not-found page state. Every route sets a `<title>`. | Human (cheap completeness) |
-| AC-12 | **No roster, by choice.** There's no auth, so any registrant list would be public. The README says so, and also states the accepted tradeoff: `ALREADY_REGISTERED` lets anyone check whether a name is registered. That's a consequence of having no authentication in scope; with an authenticated user, the duplicate check would only reveal the user's own registration. | Human (privacy) |
+| AC-12 | **No roster, by choice.** There's no auth, so any registrant list would be public. The accepted tradeoff: `ALREADY_REGISTERED` lets anyone check whether a name is registered, a consequence of having no authentication in scope. At G5 the human limited the README's cut list to features the brief names, so neither point appears there (DECISIONS). | Human (privacy) |
 | AC-13 | **Accessibility scope** (WCAG 2.2 AA basics, native first). **In:** labels; inline errors with `aria-invalid`/`aria-describedby`; one h1 and a `<title>` per page; native `disabled` while a request is pending; a `fieldset` for date and time; a state replaces any action that can't succeed; the QR code has a `title` plus the visible URL; status shown in text, not color; everything reachable by keyboard; one axe check per page; `color-scheme: light` with an explicit body background and text color. **Out:** error summaries, live regions, focus choreography after a refetch, popover focus patches, theme contrast tests, FullCalendar's internal grid semantics. | Human |
 | AC-14 | **One-command run.** `docker compose up --build` runs migrations and `db:seed` before the API starts. The seed **always upserts the templates**. It inserts demo events **only when the events table is empty**, and never updates `registeredCount`. The demo events are day offsets from today at a fixed UTC hour on the 15-minute grid. The one full event is inserted together with its registration rows, so I3 holds. `npm run db:seed` runs the same seed in development. | Deliverable 2; human |
-| AC-15 | **Docs.** The README is about 1,000 words or fewer. **The human writes** the design write-up (about 650 words or fewer, answering the spec's three questions) and the AI note (3–5 sentences, including a rejection the human made at a gate). The README also has the cut list, the "Scan from a phone" section (AC-6), the roster note, and a short pointer to the AI tooling (no diagrams; human, G5). No `AUTHOR:` or `TODO` is left anywhere. | Deliverable 2 |
+| AC-15 | **Docs.** The README is about 1,000 words or fewer. **The human writes** the design write-up (about 650 words or fewer, answering the spec's three questions) and the AI note (3–5 sentences, including a rejection the human made at a gate). The README also has a cut-or-faked list limited to brief features, the "Scan from a phone" section (AC-6), and a short pointer to the AI tooling (no diagrams; human, G5). No `AUTHOR:` or `TODO` is left anywhere. | Deliverable 2 |
 | AC-16 | **History.** There's no target count. Every subject names the specific change, and each slice carries its tests. `main` is linear (cherry-picked), with no merge, `fixup!` or log-only commits. Ranges the human reviewed get annotated `reviewed/<gate>` tags at ship. | Rubric (judgment) |
 
 ## System overview
@@ -73,6 +73,7 @@ erDiagram
     int durationMinutes "nullable, CHECK > 0; overrides the template default"
     int minPlayers "nullable, CHECK >= 1; overrides the template default"
     int capacityStep "nullable, CHECK > 0; capacity must be a multiple"
+    int defaultCapacity "nullable, CHECK 1..30; overrides the template default"
   }
   Event {
     uuid id PK
@@ -96,7 +97,7 @@ erDiagram
   }
 ```
 
-- **Snapshot.** At creation the event copies `durationMinutes` (format ?? template), `minPlayers` (format ?? template), and `capacity` (input ?? template default). Later template edits never change an existing event. The template and format names stay linked through the FK.
+- **Snapshot.** At creation the event copies `durationMinutes` (format ?? template), `minPlayers` (format ?? template), and `capacity` (input ?? format default ?? template default). Later template edits never change an existing event. The template and format names stay linked through the FK.
 - **Counter vs `COUNT(*)`.** `registeredCount` is the row that gets locked. The guarded increment serializes the last seat on one row, with no table scan and no SERIALIZABLE retries.
 - **Templates are real rows.** The runtime reads only the database. `apps/api/src/templates/definitions.ts` is the **seed**, upserted at boot by the same function the Euchre test uses. That function rejects a definition whose `defaultCapacity` is below one of its formats' effective min players, or isn't a multiple of that format's `capacityStep`, so a bad 4th game fails at seed time, not on a user's form. The form's capacity `min` is the effective min players rounded up to the step, and its `max` is the template's max rounded down to the step.
 - **Derived, never stored:** `endsAt` = `startsAt + durationMinutes`, and `registrationStatus`, which is `closed` if `startsAt ≤ now`, else `full` if `registeredCount ≥ capacity`, else `open`.
@@ -292,7 +293,7 @@ Any other dependency needs a DECISIONS row, and only the lead installs it.
 ## Non-goals and cuts
 
 - **Spec non-goals:** auth, payments, email, recurring events, editing or cancelling events and registrations, admin dashboards.
-- **Cut on purpose** (these go in the README cut list):
+- **Cut on purpose:**
   - a public roster (AC-12)
   - a waitlist
   - a phone tunnel (we document the LAN IP or `PUBLIC_WEB_URL` instead)
