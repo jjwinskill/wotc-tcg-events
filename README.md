@@ -4,7 +4,7 @@ A small web app for a store that runs organized play. Organizers create events f
 
 ## Run it
 
-`docker compose up --build`, then open http://localhost:8080. Demo events are seeded. `docker compose down -v` resets everything. `npm run verify` runs typecheck, lint and tests. For local development, see `.env.example`.
+`docker compose up --build`, then open http://localhost:8080. Demo events are seeded. `docker compose down -v` resets everything. From a clone, tests and dev mode first need `cp .env.example .env && npm ci && npm run db:generate && docker compose up -d db`. Then `npm run verify` runs typecheck, lint and tests, and `npm run db:migrate && npm run db:seed && npm run dev` serves the app on :5173.
 
 ## Scan from a phone
 

@@ -1,6 +1,6 @@
 # Decision log
 
-Append-only, newest last. Add one row for each non-obvious choice: scope cuts, deviations from ARCHITECTURE.md, dependency additions, tradeoffs a reviewer might question, and **every human gate decision** (Source = `human`).
+Append-only. Rows appear in integration order (specialist branches were cherry-picked), so the timestamps are authoritative. Add one row for each non-obvious choice: scope cuts, deviations from ARCHITECTURE.md, dependency additions, tradeoffs a reviewer might question, and **every human gate decision** (Source = `human`).
 
 | Time (UTC) | Source | Decision | Why / alternatives considered |
 |---|---|---|---|
@@ -49,3 +49,4 @@ Append-only, newest last. Add one row for each non-obvious choice: scope cuts, d
 | 2026-10-02T02:44Z | human | README is about one page in total (~1,000 words) including the design write-up (~650) and AI note; factual sections trimmed to ~300 words of prose, no project-layout block | The spec asks for a ~1-page write-up and the human wants the whole README to read as one page. |
 | 2026-10-02T02:47Z | human | Formats can override the default capacity (Modern 12, Commander 12, Booster Draft 8, Pokémon Expanded 16), and the form's capacity resets when the format changes | Seen in G3 hands-on: every MTG format defaulted to 16. Same pattern as the duration and min-players overrides (format ?? template); a CHECK keeps it within 1–30. |
 | 2026-10-02T02:47Z | lead | The lead implemented the format default-capacity change across schema, contract, API and web as one slice | It came at feature freeze, and splitting it across two specialists would have left main red between their commits. |
+| 2026-10-02T02:48Z | gate-reviewer | Text fields reject control characters in the shared contract; an empty start time gets a friendly message | A NUL in a name gave a 500 (Postgres rejects 0x00); client input must never produce one. |

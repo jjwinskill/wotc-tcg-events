@@ -9,6 +9,4 @@ const Env = z.object({
   ),
 });
 
-export type Config = z.infer<typeof Env>;
-
-export const loadConfig = (env: NodeJS.ProcessEnv = process.env): Config => Env.parse(env);
+export const loadConfig = (env: NodeJS.ProcessEnv = process.env) => Env.parse(env);
