@@ -21,6 +21,7 @@ const format = (id: string, name: string, rules: Partial<GameFormat> = {}): Game
   durationMinutes: null,
   minPlayers: null,
   capacityStep: null,
+  defaultCapacity: null,
   ...rules,
 });
 type Numbers = [defaultCapacity: number, minPlayers: number, maxCapacity: number, defaultDurationMinutes: number];
@@ -30,7 +31,7 @@ const game = (id: string, name: string, [defaultCapacity, minPlayers, maxCapacit
 export const templates = [
   game('mtg', 'Magic: The Gathering', [16, 4, 30, 180], [
     format('standard', 'Standard'),
-    format('commander', 'Commander', { capacityStep: 4 }),
+    format('commander', 'Commander', { capacityStep: 4, defaultCapacity: 12 }),
     format('booster-draft', 'Booster Draft', { durationMinutes: 240, minPlayers: 8 }),
   ]),
   game('pokemon', 'Pokémon TCG', [24, 4, 30, 150], [format('standard', 'Standard'), format('expanded', 'Expanded')]),

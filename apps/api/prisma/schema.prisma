@@ -25,6 +25,7 @@ model GameFormat {
   durationMinutes Int?
   minPlayers      Int?
   capacityStep    Int?
+  defaultCapacity Int?
   template        GameTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   events          Event[]
 

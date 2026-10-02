@@ -5,10 +5,10 @@ const http = await api();
 const configured = await api({ publicWebUrl: 'http://events.example.test:9000' });
 const create = (over: object = {}) => http.post('/api/events').send(createBody(over));
 
-it('applies template defaults and the Booster Draft duration and min-players overrides', async () => {
+it('applies template defaults and the Booster Draft duration, min-players and capacity overrides', async () => {
   const [standard, draft] = await Promise.all([create(), create({ formatId: 'booster-draft' })]);
   expect(standard.body).toMatchObject({ capacity: 16, durationMinutes: 180, minPlayers: 4 });
-  expect(draft.body).toMatchObject({ capacity: 16, durationMinutes: 240, minPlayers: 8 });
+  expect(draft.body).toMatchObject({ capacity: 8, durationMinutes: 240, minPlayers: 8 });
 });
 
 it.each([

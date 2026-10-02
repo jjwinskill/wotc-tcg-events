@@ -12,13 +12,13 @@ const capacityRules = () => {
 };
 const options = (name: string) => within(screen.getByRole('combobox', { name })).getAllByRole<HTMLOptionElement>('option');
 
-it('picking a game sets its formats, default capacity and capacity bounds', async () => {
+it('picking a game or format sets its formats, default capacity and capacity bounds', async () => {
   renderCreate();
   await screen.findByRole('combobox', { name: 'Format' });
   expect(capacityRules()).toEqual({ value: '16', min: '4', max: '30', step: '1' });
 
   fireEvent.change(screen.getByRole('combobox', { name: 'Format' }), { target: { value: 'commander' } });
-  expect(capacityRules()).toEqual({ value: '16', min: '4', max: '28', step: '4' });
+  expect(capacityRules()).toEqual({ value: '12', min: '4', max: '28', step: '4' });
 
   fireEvent.change(screen.getByRole('combobox', { name: 'Game' }), { target: { value: 'one-piece' } });
   expect(options('Format').map((o) => o.textContent)).toEqual(['Standard']);

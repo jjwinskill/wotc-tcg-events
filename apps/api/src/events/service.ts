@@ -42,7 +42,7 @@ export const createEventService = ({ db, clock }: { db: Db; clock: Clock }) => {
       if (!template) throw fieldError('templateId', 'Choose a game from the list');
       const rules = formatRules(template, input.formatId);
       if (!rules) throw fieldError('formatId', `Choose a format offered for ${template.name}`);
-      const capacity = input.capacity ?? template.defaultCapacity;
+      const capacity = input.capacity ?? rules.defaultCapacity;
       if (!isValidCapacity(rules, capacity)) {
         const step = rules.step > 1 ? ` in steps of ${rules.step}` : '';
         throw fieldError('capacity', `Capacity must be ${rules.minCapacity}–${rules.maxCapacity}${step}`);

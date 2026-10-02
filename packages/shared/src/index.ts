@@ -39,6 +39,7 @@ export const GameFormat = z.object({
   durationMinutes: z.number().int().nullable(),
   minPlayers: z.number().int().nullable(),
   capacityStep: z.number().int().nullable(),
+  defaultCapacity: z.number().int().nullable(),
 });
 export type GameFormat = z.infer<typeof GameFormat>;
 
@@ -62,6 +63,7 @@ export function formatRules(template: GameTemplate, formatId: string) {
   return {
     minPlayers,
     durationMinutes: format.durationMinutes ?? template.defaultDurationMinutes,
+    defaultCapacity: format.defaultCapacity ?? template.defaultCapacity,
     step,
     minCapacity: Math.ceil(minPlayers / step) * step,
     maxCapacity: Math.floor(template.maxCapacity / step) * step,

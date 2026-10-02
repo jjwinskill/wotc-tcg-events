@@ -4,7 +4,7 @@ import type { TemplateDefinition } from './definitions.ts';
 
 const withFormats = {
   formats: {
-    select: { id: true, name: true, durationMinutes: true, minPlayers: true, capacityStep: true },
+    select: { id: true, name: true, durationMinutes: true, minPlayers: true, capacityStep: true, defaultCapacity: true },
     orderBy: { name: 'asc' },
   },
 } as const;
@@ -18,12 +18,12 @@ export const findTemplate = (db: Db, id: string): Promise<GameTemplate | null> =
 /** Seeds one game. Rejects a default capacity that some format could never accept, so a bad game fails here, not on a form. */
 export async function upsertTemplate(db: Db, def: TemplateDefinition) {
   const { formats: defFormats, ...row } = def;
-  const formats = defFormats.map((f) => ({ durationMinutes: null, minPlayers: null, capacityStep: null, ...f }));
+  const formats = defFormats.map((f) => ({ durationMinutes: null, minPlayers: null, capacityStep: null, defaultCapacity: null, ...f }));
   for (const f of formats) {
     const rules = formatRules({ ...row, formats }, f.id)!;
-    if (!isValidCapacity(rules, row.defaultCapacity))
+    if (!isValidCapacity(rules, rules.defaultCapacity))
       throw new Error(
-        `Template ${row.id}/${f.id}: defaultCapacity ${row.defaultCapacity} must be a multiple of ${rules.step} between ${rules.minCapacity} and ${rules.maxCapacity}`,
+        `Template ${row.id}/${f.id}: defaultCapacity ${rules.defaultCapacity} must be a multiple of ${rules.step} between ${rules.minCapacity} and ${rules.maxCapacity}`,
       );
   }
   await db.$transaction([

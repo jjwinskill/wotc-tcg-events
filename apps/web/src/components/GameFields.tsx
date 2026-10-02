@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { FieldErrors } from '../api';
 import { Field, fieldProps } from './Field';
 
-/** Format and capacity depend on the game; the parent remounts this with `key` when the game changes. */
+/** Format and capacity depend on the game (the parent remounts this with `key`); capacity resets with the format. */
 export function GameFields({ template, errors }: { template: GameTemplate; errors: FieldErrors }) {
   const [formatId, setFormatId] = useState(template.formats[0]?.id ?? '');
   const rules = formatRules(template, formatId);
@@ -23,7 +23,8 @@ export function GameFields({ template, errors }: { template: GameTemplate; error
           type="number"
           {...fieldProps(errors, 'capacity')}
           required
-          defaultValue={template.defaultCapacity}
+          key={formatId}
+          defaultValue={rules?.defaultCapacity}
           min={rules?.minCapacity}
           max={rules?.maxCapacity}
           step={rules?.step}

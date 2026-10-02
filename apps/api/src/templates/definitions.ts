@@ -15,9 +15,9 @@ export const templateDefinitions: TemplateDefinition[] = [
     defaultDurationMinutes: 180,
     formats: [
       { id: 'standard', name: 'Standard' },
-      { id: 'modern', name: 'Modern' },
-      { id: 'commander', name: 'Commander', capacityStep: 4 },
-      { id: 'booster-draft', name: 'Booster Draft', durationMinutes: 240, minPlayers: 8 },
+      { id: 'modern', name: 'Modern', defaultCapacity: 12 },
+      { id: 'commander', name: 'Commander', capacityStep: 4, defaultCapacity: 12 },
+      { id: 'booster-draft', name: 'Booster Draft', durationMinutes: 240, minPlayers: 8, defaultCapacity: 8 },
     ],
   },
   {
@@ -29,7 +29,7 @@ export const templateDefinitions: TemplateDefinition[] = [
     defaultDurationMinutes: 150,
     formats: [
       { id: 'standard', name: 'Standard' },
-      { id: 'expanded', name: 'Expanded' },
+      { id: 'expanded', name: 'Expanded', defaultCapacity: 16 },
     ],
   },
   {
