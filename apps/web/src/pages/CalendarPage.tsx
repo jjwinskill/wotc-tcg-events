@@ -43,6 +43,7 @@ export function CalendarPage() {
         buttonIcons={false}
         buttonText={{ prev: 'Previous', next: 'Next', today: 'Today', dayGridMonth: 'Month', listMonth: 'List' }}
         fixedWeekCount={false}
+        nextDayThreshold="06:00"
         aspectRatio={1.5}
         // FullCalendar reads height from calendar-level options only, so a per-view height would collapse the list.
         height={view === 'listMonth' ? 'auto' : undefined}

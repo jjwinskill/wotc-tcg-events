@@ -2,10 +2,8 @@ import type { EventDetail } from '@app/shared';
 import { useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
-import { ApiError } from './api';
+import { ApiError, type FieldErrors } from './api';
 import { eventQueries } from './queries';
-
-type FieldErrors = Record<string, string[] | undefined>;
 
 export const Title = ({ children }: { children: string }) => <title>{`${children} · Game Night Events`}</title>;
 
@@ -69,6 +67,8 @@ export function EventFacts({ event }: { event: EventDetail }) {
 export function WithEvent({ children }: { children: (event: EventDetail) => ReactNode }) {
   const { id = '' } = useParams();
   const query = useQuery(eventQueries.detail(id));
+  // Data first: a failed background refetch must not replace a loaded page or unmount the register confirmation.
+  if (query.data) return children(query.data);
   if (query.isPending)
     return (
       <>
@@ -76,26 +76,23 @@ export function WithEvent({ children }: { children: (event: EventDetail) => Reac
         <p>Loading event…</p>
       </>
     );
-  if (query.isError) {
-    const notFound = query.error instanceof ApiError && query.error.status === 404;
-    return (
-      <>
-        <Title>{notFound ? 'Event not found' : 'Event unavailable'}</Title>
-        <h1 className="text-2xl font-bold">{notFound ? 'Event not found' : "Couldn't load this event"}</h1>
-        <p className="mt-2">
-          {notFound ? (
-            'This event does not exist. '
-          ) : (
-            <button type="button" className="link mr-2" onClick={() => query.refetch()}>
-              Try again
-            </button>
-          )}
-          <Link to="/" className="link">
-            Back to the calendar
-          </Link>
-        </p>
-      </>
-    );
-  }
-  return children(query.data);
+  const notFound = query.error instanceof ApiError && query.error.status === 404;
+  return (
+    <>
+      <Title>{notFound ? 'Event not found' : 'Event unavailable'}</Title>
+      <h1 className="text-2xl font-bold">{notFound ? 'Event not found' : "Couldn't load this event"}</h1>
+      <p className="mt-2">
+        {notFound ? (
+          'This event does not exist. '
+        ) : (
+          <button type="button" className="link mr-2" onClick={() => query.refetch()}>
+            Try again
+          </button>
+        )}
+        <Link to="/" className="link">
+          Back to the calendar
+        </Link>
+      </p>
+    </>
+  );
 }

@@ -1,12 +1,14 @@
 import { ErrorEnvelope, type ErrorCode } from '@app/shared';
 import type { z } from 'zod';
 
+export type FieldErrors = Record<string, string[] | undefined>;
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
     readonly code: ErrorCode,
     message: string,
-    readonly fieldErrors: Record<string, string[] | undefined> = {},
+    readonly fieldErrors: FieldErrors = {},
   ) {
     super(message);
   }

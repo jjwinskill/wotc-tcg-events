@@ -10,11 +10,9 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { request } from '../api';
+import { request, type FieldErrors } from '../api';
 import { Field, Title, fieldErrorsOf, fieldProps } from '../components';
 import { eventQueries, templateQueries } from '../queries';
-
-type FieldErrors = ReturnType<typeof fieldErrorsOf>;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 // 15-minute start times from 10:00 to 23:45.
@@ -62,7 +60,7 @@ function CreateEventForm({ templates }: { templates: GameTemplate[] }) {
   const slotsOn = (date: string) => SLOTS.filter((time) => new Date(`${date}T${time}`) > now);
   const today = localDate(now);
   const firstDate = slotsOn(today).length ? today : localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
-  const date = pickedDate ?? firstDate;
+  const date = pickedDate || firstDate;
   const slots = slotsOn(date);
   const time = pickedTime && slots.includes(pickedTime) ? pickedTime : (slots.find((t) => t >= '18:00') ?? slots[0]);
   const template = templates.find((t) => t.id === templateId);
@@ -106,11 +104,15 @@ function CreateEventForm({ templates }: { templates: GameTemplate[] }) {
       <fieldset>
         <legend className="mb-1 font-medium">Start</legend>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Date" name="date" errors={errors}>
-            <input type="date" {...fieldProps(errors, 'date')} required min={firstDate} value={date} onChange={(e) => setDate(e.target.value)} />
-          </Field>
+          <div className="space-y-1">
+            <label htmlFor="date" className="block font-medium">
+              Date
+            </label>
+            <input type="date" id="date" className="input" required min={firstDate} value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
           <Field label="Start time" name="startsAt" errors={errors}>
             <select {...fieldProps(errors, 'startsAt')} required value={time ?? ''} onChange={(e) => setTime(e.target.value)}>
+              {slots.length === 0 && <option value="">No start times left on this date</option>}
               {slots.map((t) => (
                 <option key={t} value={t}>
                   {slotLabel(t)}

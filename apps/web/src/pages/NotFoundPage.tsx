@@ -1,9 +1,10 @@
 import { Link } from 'react-router';
+import { Title } from '../components';
 
 export function NotFoundPage() {
   return (
     <>
-      <title>Page not found · Game Night Events</title>
+      <Title>Page not found</Title>
       <h1 className="text-2xl font-bold">Page not found</h1>
       <p className="mt-2">
         <Link to="/" className="underline">
