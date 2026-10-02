@@ -1,8 +1,11 @@
 import { execFileSync } from 'node:child_process';
 import pg from 'pg';
+import { createDb } from '../src/db.ts';
+import { templateDefinitions } from '../src/templates/definitions.ts';
+import { upsertTemplate } from '../src/templates/store.ts';
 
 // Creates this worktree's test database if missing, migrates it with `migrate deploy`
-// (never `db push`, which would skip the CHECK constraints), then empties it.
+// (never `db push`, which would skip the CHECK constraints), empties it, then seeds the real templates.
 export default async function setup() {
   const url = new URL(process.env.TEST_DATABASE_URL!);
   const dbName = url.pathname.slice(1);
@@ -23,4 +26,8 @@ export default async function setup() {
   await db.connect();
   await db.query('TRUNCATE "Registration", "Event", "GameFormat", "GameTemplate" CASCADE');
   await db.end();
+
+  const prisma = createDb(url.toString());
+  for (const def of templateDefinitions) await upsertTemplate(prisma, def);
+  await prisma.$disconnect();
 }
