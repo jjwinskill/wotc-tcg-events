@@ -38,7 +38,6 @@ There's no template admin UI, so adding a 4th game means adding one typed defini
 Cut or faked:
 
 - The seed events are demo data, and the seed isn't atomic: a crash midway leaves partial demo data.
-- The `.ics` file is checked by tests and by hand, but I didn't import it into Google Calendar or Outlook.
 - Scanning the QR code works only on the same network (the LAN IP or `PUBLIC_WEB_URL`); the app isn't publicly hosted.
 
 Next, in order:
