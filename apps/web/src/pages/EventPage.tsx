@@ -19,34 +19,36 @@ function EventView({ event }: { event: EventDetail }) {
     <>
       <Title>{event.name}</Title>
       <h1 className="text-2xl font-bold">{event.name}</h1>
-      <EventFacts event={event} />
-      {event.registrationStatus === 'open' && needed > 0 && <p>{`Needs ${needed} more player${needed === 1 ? '' : 's'} to start`}</p>}
-      <p className="my-4">
-        <IcsLink id={event.id} />
-      </p>
-      {event.registrationStatus === 'open' ? (
-        <section className="space-y-3">
-          <h2 className="text-xl font-semibold">Registration</h2>
-          <Link to={`/events/${event.id}/register`} className="btn">
-            Register for this event
-          </Link>
-          <QRCodeSVG value={url} title="QR code for the registration page" role="img" size={192} marginSize={2} />
-          <p>
-            Or share this link:{' '}
-            <a href={url} className="link break-all">
-              {url}
-            </a>
+      <div className="md:grid md:grid-cols-[1fr_16rem] md:items-start md:gap-8">
+        <div>
+          <EventFacts event={event} />
+          {event.registrationStatus === 'open' && needed > 0 && <p>{`Needs ${needed} more player${needed === 1 ? '' : 's'} to start`}</p>}
+          <p className="my-4">
+            <IcsLink id={event.id} />
           </p>
-          {localOnly && (
-            <p className="text-sm">Phones can't open localhost links; see "Scan from a phone" in the README.</p>
-          )}
-        </section>
-      ) : (
-        <section className="space-y-1">
-          <h2 className="text-xl font-semibold">{unavailable(event.registrationStatus, event.capacity)[0]}</h2>
-          <p>{unavailable(event.registrationStatus, event.capacity)[1]}</p>
-        </section>
-      )}
+        </div>
+        {event.registrationStatus === 'open' ? (
+          <section className="space-y-3 md:mt-4">
+            <h2 className="text-xl font-semibold">Registration</h2>
+            <Link to={`/events/${event.id}/register`} className="btn">
+              Register for this event
+            </Link>
+            <QRCodeSVG value={url} title="QR code for the registration page" role="img" size={192} marginSize={2} />
+            <p>
+              Or share this link:{' '}
+              <a href={url} className="link break-all">
+                {url}
+              </a>
+            </p>
+            {localOnly && <p className="text-sm">Phones can't open localhost links; see "Scan from a phone" in the README.</p>}
+          </section>
+        ) : (
+          <section className="space-y-1 md:mt-4">
+            <h2 className="text-xl font-semibold">{unavailable(event.registrationStatus, event.capacity)[0]}</h2>
+            <p>{unavailable(event.registrationStatus, event.capacity)[1]}</p>
+          </section>
+        )}
+      </div>
     </>
   );
 }

@@ -26,6 +26,14 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+.fc .fc-button-group {
+  gap: 0.25rem;
+}
+/* The doubled class outranks FullCalendar's joined-group rule (margin-left: -1px, squared inner corners). */
+.fc .fc-toolbar .fc-button-group > .fc-button.fc-button {
+  margin-left: 0;
+  border-radius: 0.25em;
+}
 .fc .fc-toolbar-title {
   font-size: 1.25rem;
 }
