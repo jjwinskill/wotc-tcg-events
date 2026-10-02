@@ -28,6 +28,7 @@ export const ErrorEnvelope = z.object({
 export type ErrorEnvelope = z.infer<typeof ErrorEnvelope>;
 
 const instant = z.iso.datetime({ offset: true, error: 'Use an ISO date-time with a time zone offset' });
+const body = <T extends z.ZodRawShape>(shape: T) => z.object(shape, { error: 'Send a JSON object body' });
 
 export const GameFormat = z.object({
   id: z.string(),
@@ -49,10 +50,29 @@ export const GameTemplate = z.object({
 });
 export type GameTemplate = z.infer<typeof GameTemplate>;
 
-export const CreateEventInput = z.object({
-  name: z.string().trim().min(1, 'Enter an event name').max(100, 'Use 100 characters or fewer'),
-  templateId: z.string().min(1, 'Choose a game'),
-  formatId: z.string().min(1, 'Choose a format'),
+/** The rules a format resolves to: its overrides, else the template's defaults. One source for API and form. */
+export function formatRules(template: GameTemplate, formatId: string) {
+  const format = template.formats.find((f) => f.id === formatId);
+  if (!format) return undefined;
+  const step = format.capacityStep ?? 1;
+  const minPlayers = format.minPlayers ?? template.minPlayers;
+  return {
+    minPlayers,
+    durationMinutes: format.durationMinutes ?? template.defaultDurationMinutes,
+    step,
+    minCapacity: Math.ceil(minPlayers / step) * step,
+    maxCapacity: Math.floor(template.maxCapacity / step) * step,
+  };
+}
+export type FormatRules = NonNullable<ReturnType<typeof formatRules>>;
+
+export const isValidCapacity = (rules: FormatRules, capacity: number) =>
+  capacity >= rules.minCapacity && capacity <= rules.maxCapacity && capacity % rules.step === 0;
+
+export const CreateEventInput = body({
+  name: z.string({ error: 'Enter an event name' }).trim().min(1, 'Enter an event name').max(100, 'Use 100 characters or fewer'),
+  templateId: z.string({ error: 'Choose a game' }).min(1, 'Choose a game'),
+  formatId: z.string({ error: 'Choose a format' }).min(1, 'Choose a format'),
   startsAt: instant.refine((s) => new Date(s).getTime() % (15 * 60_000) === 0, 'Pick a start time on a 15-minute step'),
   capacity: z
     .number({ error: 'Enter a whole number of players' })
@@ -60,7 +80,7 @@ export const CreateEventInput = z.object({
     .min(1, 'Capacity must be at least 1')
     .max(30, 'Capacity can be at most 30')
     .optional(),
-  location: z.string().trim().min(1, 'Enter a location').max(200, 'Use 200 characters or fewer'),
+  location: z.string({ error: 'Enter a location' }).trim().min(1, 'Enter a location').max(200, 'Use 200 characters or fewer'),
 });
 export type CreateEventInput = z.infer<typeof CreateEventInput>;
 
@@ -95,8 +115,8 @@ export const EventDetail = EventSummary.extend({
 });
 export type EventDetail = z.infer<typeof EventDetail>;
 
-export const RegisterInput = z.object({
-  name: z.string().trim().min(1, 'Enter your name').max(60, 'Use 60 characters or fewer'),
+export const RegisterInput = body({
+  name: z.string({ error: 'Enter your name' }).trim().min(1, 'Enter your name').max(60, 'Use 60 characters or fewer'),
 });
 export type RegisterInput = z.infer<typeof RegisterInput>;
 

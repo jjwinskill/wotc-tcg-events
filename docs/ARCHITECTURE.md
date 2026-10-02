@@ -209,7 +209,7 @@ React 19 SPA (Vite) with React Router 7.18.4 in **data mode** (`createBrowserRou
 6. The event page shows the QR code with `registrationUrl`, the `.ics` link and the min-players hint, the localhost notice only when `registrationUrl` is localhost, plus one axe check.
 7. The calendar requests the visible range, and full events say "Full" in text.
 
-**Runner rules:** the root `vitest` projects cover `apps/*` and `packages/*`. Each project's `include` matches where its tests live, and there's no `passWithNoTests`. The API project sets `fileParallelism: false`. Its global setup (counted in the API test budget) creates the database if missing, runs `migrate deploy`, empties it and upserts the real template definitions once; only the Euchre test upserts Euchre.
+**Runner rules:** the root `vitest` projects are `apps/api` and `apps/web` (shared has no tests of its own). Each project's `include` matches where its tests live, and there's no `passWithNoTests`. The API project sets `fileParallelism: false`. Its global setup (counted in the API test budget) creates the database if missing, runs `migrate deploy`, empties it and upserts the real template definitions once; only the Euchre test upserts Euchre.
 
 ## Budgets (the gate-reviewer enforces these with `wc -l`)
 
